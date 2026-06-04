@@ -83,7 +83,8 @@ Error shape is always `{ "error": "<message>" }`.
 | `POST /rooms/:slug/moderate` | `{ action: "mute"\|"remove", targetUserId }` | `{ ok: true }` | moderator+; emits `moderation:applied` |
 | `GET /health` | — | `{ ok: true }` | unchanged from v1 |
 
-**Public-safe `Room`** = all fields except `accessCode`.
+**Public-safe `Room`** = all fields except `accessCode` (so `members[]` **is** returned —
+clients use it to tell joined vs not-yet-joined rooms).
 
 ### Resolved during checkpoint-01 (Contract Lead ratified)
 - **Membership** is modeled as `Room.members: ObjectId[]` (no separate collection).
@@ -113,6 +114,8 @@ All broadcasts below are **scoped to `room:<slug>`** (never global):
 | `pulse:pinned` | `Pulse` | a pulse's `pinned` changed |
 | `presence:members` | `{ slug, members: { userId, displayName }[], count }` | join/leave/disconnect |
 | `moderation:applied` | `{ action, targetUserId, byUserId }` | a mute/remove happened |
+| `room:joined` | `{ slug }` | (to the joining socket only) `room:join` succeeded |
+| `room:error` | `{ slug?, error }` | (to the joining socket only) join failed: missing slug / room not found / not a member |
 
 **Presence rule:** dedupe by `userId` (two tabs of one person = one member).
 Source of truth = the identities of sockets currently in `room:<slug>`, resolved via
@@ -135,6 +138,7 @@ the Redis adapter so it's correct across instances.
 
 ## 7. Open questions (Contract Lead to resolve with the team)
 
-- Mute semantics: server-side drop of the muted user's posts, or client-side hide?
-  (Proposed: server-side reject with 403 while muted — authoritative.)
+- **RESOLVED (ratified, checkpoint-03):** Mute is **server-side authoritative** — a
+  muted user gets `403` on `POST /rooms/:slug/pulses` while muted (checkpoint-04
+  enforces). Clients just surface the server's `{ error }`.
 - Room deletion / archiving — deferred to a later checkpoint unless trivial.
