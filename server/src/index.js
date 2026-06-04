@@ -1,19 +1,39 @@
 import 'dotenv/config';
+import http from 'http';
 import express from 'express';
 import cors from 'cors';
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Health check — keep this working through every checkpoint.
-app.get('/health', (req, res) => res.json({ ok: true }));
-
-// ── Live build goes here ─────────────────────────────────────────────
-// During the session you'll add: MongoDB connection, the Pulse model,
-// GET/POST /api/pulses, the Socket.IO server, the Redis adapter, and presence.
-// See docs/architecture.md.
-// ─────────────────────────────────────────────────────────────────────
+import { connectDb } from './db.js';
+import { createSocketServer } from './socket.js';
+import { pulsesRouter } from './routes/pulses.js';
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`server listening on :${PORT}`));
+
+// Allowed origins: CLIENT_ORIGIN (comma-separated) plus the local dev client.
+const origins = (process.env.CLIENT_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+origins.push('http://localhost:5173');
+
+async function start() {
+  await connectDb(process.env.MONGODB_URI);
+
+  const app = express();
+  app.use(cors({ origin: origins }));
+  app.use(express.json());
+
+  // Health check — keep this working through every checkpoint.
+  app.get('/health', (req, res) => res.json({ ok: true }));
+
+  const server = http.createServer(app);
+  const io = await createSocketServer(server, origins);
+
+  app.use('/api/pulses', pulsesRouter(io));
+
+  server.listen(PORT, () => console.log(`server listening on :${PORT}`));
+}
+
+start().catch((err) => {
+  console.error('failed to start server', err);
+  process.exit(1);
+});
