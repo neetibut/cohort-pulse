@@ -54,6 +54,17 @@ Pulse {
 - **Socket:** send on handshake — `io(URL, { auth: { token } })`.
 - Missing/invalid token → REST `401`; socket connection rejected with `connect_error`.
 
+### Resolved during checkpoint-02 (Contract Lead ratified)
+- The shared verify util lives at **`server/src/auth.js`** (`signToken`, `verifyToken`).
+  Realtime imports `verifyToken` from there for the socket handshake.
+- `POST /api/auth/session` returns **`201`** `{ token, user: { userId, displayName } }`
+  (`user` is the token-payload shape, not the raw Mongo doc).
+- Each `POST /auth/session` mints a **new** `User` (display names aren't unique).
+  Stable identity comes from the **client reusing the stored token**, per §4.1 — not
+  from server-side dedupe by name.
+- The **socket handshake** itself (`io.use` verifying `auth.token`) is implemented by
+  the Realtime role in **checkpoint-03** (it was scoped out of the REST/JWT commit).
+
 ## 3. REST API
 
 Base path `/api`. All except `POST /auth/session` require a valid token.

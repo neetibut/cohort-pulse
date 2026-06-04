@@ -7,6 +7,9 @@ export async function createSocketServer(httpServer, origins) {
     cors: { origin: origins, methods: ['GET', 'POST'] },
   });
 
+  // NOTE: JWT handshake auth (contract §2/§4) is added by the Realtime role in
+  // checkpoint-03 — it imports verifyToken from ./auth.js. Left out here on purpose.
+
   // Redis adapter — the production-correct way to fan out events across multiple
   // backend instances. Optional locally: skipped when REDIS_URL is unset so the
   // server still runs in single-process local mode.

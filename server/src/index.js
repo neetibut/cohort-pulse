@@ -6,6 +6,8 @@ import { connectDb } from './db.js';
 import { createSocketServer } from './socket.js';
 import { pulsesRouter } from './routes/pulses.js';
 import { roomsRouter } from './routes/rooms.js';
+import { authRouter } from './routes/auth.js';
+import { requireAuth } from './middleware/requireAuth.js';
 import { ensureLobby } from './seed.js';
 
 const PORT = process.env.PORT || 3001;
@@ -30,6 +32,12 @@ async function start() {
 
   const server = http.createServer(app);
   const io = await createSocketServer(server, origins);
+
+  // Public auth endpoint (issues tokens) — mounted before the auth gate.
+  app.use('/api/auth', authRouter());
+
+  // Everything else under /api requires a valid Bearer token (contract §2/§3).
+  app.use('/api', requireAuth);
 
   app.use('/api/pulses', pulsesRouter(io));
   app.use('/api/rooms', roomsRouter(io));

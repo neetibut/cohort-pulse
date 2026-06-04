@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { Room } from '../models/Room.js';
 import { Pulse, PULSE_TYPES } from '../models/Pulse.js';
-import { currentUser } from '../middleware/currentUser.js';
 
 // Is the caller a member of (i.e. has joined) this room?
 function isMember(room, userId) {
@@ -11,8 +10,7 @@ function isMember(room, userId) {
 export function roomsRouter(io) {
   const router = Router();
 
-  // Stub identity on every room route until checkpoint-02 swaps in real JWT auth.
-  router.use(currentUser);
+  // Identity (req.user) is set by the requireAuth middleware mounted on /api (index.js).
 
   // GET /api/rooms -> public rooms + rooms the caller has joined.
   router.get('/', async (req, res) => {
