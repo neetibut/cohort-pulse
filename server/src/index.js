@@ -5,6 +5,8 @@ import cors from 'cors';
 import { connectDb } from './db.js';
 import { createSocketServer } from './socket.js';
 import { pulsesRouter } from './routes/pulses.js';
+import { roomsRouter } from './routes/rooms.js';
+import { ensureLobby } from './seed.js';
 
 const PORT = process.env.PORT || 3001;
 
@@ -17,6 +19,7 @@ origins.push('http://localhost:5173');
 
 async function start() {
   await connectDb(process.env.MONGODB_URI);
+  await ensureLobby();
 
   const app = express();
   app.use(cors({ origin: origins }));
@@ -29,6 +32,7 @@ async function start() {
   const io = await createSocketServer(server, origins);
 
   app.use('/api/pulses', pulsesRouter(io));
+  app.use('/api/rooms', roomsRouter(io));
 
   server.listen(PORT, () => console.log(`server listening on :${PORT}`));
 }

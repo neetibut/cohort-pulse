@@ -27,6 +27,7 @@ Room {
   moderatorIds: ObjectId[]   // owner is implicitly a moderator
   isPrivate: boolean
   accessCode?: string   // required iff isPrivate; never returned to clients
+  members: ObjectId[]   // -> User; everyone who has joined (owner included)
   createdAt: Date
 }
 
@@ -72,6 +73,16 @@ Error shape is always `{ "error": "<message>" }`.
 | `GET /health` | — | `{ ok: true }` | unchanged from v1 |
 
 **Public-safe `Room`** = all fields except `accessCode`.
+
+### Resolved during checkpoint-01 (Contract Lead ratified)
+- **Membership** is modeled as `Room.members: ObjectId[]` (no separate collection).
+  `POST /rooms/:slug/join` returns `{ room: <public-safe>, membership: { roomId, userId } }`.
+- **Slug** is derived server-side from `name` (`slugify`: lowercase, non-alnum → `-`,
+  trimmed, ≤80). `POST /rooms` takes no `slug`. Duplicate slug → `409 { error }`.
+- The **`lobby`** room is owned by a synthetic `System` user seeded at startup.
+- The v1 global `/api/pulses` route is **deprecated** (its Pulse docs predate
+  `roomId`/`authorId`). It stays mounted but unused; checkpoint-06 backfills v1
+  pulses into `lobby` and retires it (PRD §9).
 
 ## 4. Socket.IO events
 
