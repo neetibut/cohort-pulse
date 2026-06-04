@@ -1,0 +1,15 @@
+{
+  "name": "cohort-pulse-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Starter for the 60-minute live Cohort Pulse Board build (From Vibe Coding to Agentic Engineering).",
+  "scripts": {
+    "setup": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently -n server,client -c blue,magenta \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
