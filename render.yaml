@@ -1,0 +1,30 @@
+# Render Blueprint (optional convenience).
+# The runbook's dashboard steps are the source of truth; this file just
+# automates the same setup. Targets Render's current "Key Value" (Redis) type —
+# if your account still shows the older "Redis" type, change `type: keyvalue`
+# to `type: redis` below and in the fromService reference.
+services:
+  - type: web
+    name: cohort-pulse-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: MONGODB_URI
+        sync: false          # set in the dashboard (Atlas connection string)
+      - key: CLIENT_ORIGIN
+        sync: false          # set after Vercel deploy (your Vercel URL)
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: cohort-pulse-redis
+          property: connectionString
+      # PORT is injected by Render automatically — do not set it.
+
+  - type: keyvalue
+    name: cohort-pulse-redis
+    plan: free
+    ipAllowList: []          # internal connections only
