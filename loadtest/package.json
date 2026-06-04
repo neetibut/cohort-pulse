@@ -1,0 +1,13 @@
+{
+  "name": "cohort-pulse-loadtest",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Concurrent-client load test for the Cohort Pulse Board backend.",
+  "scripts": {
+    "start": "node loadtest.mjs"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}
