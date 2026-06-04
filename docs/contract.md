@@ -28,6 +28,7 @@ Room {
   isPrivate: boolean
   accessCode?: string   // required iff isPrivate; never returned to clients
   members: ObjectId[]   // -> User; everyone who has joined (owner included)
+  mutedIds: ObjectId[]  // -> User; muted members (server-side authoritative mute)
   createdAt: Date
 }
 
@@ -142,3 +143,14 @@ the Redis adapter so it's correct across instances.
   muted user gets `403` on `POST /rooms/:slug/pulses` while muted (checkpoint-04
   enforces). Clients just surface the server's `{ error }`.
 - Room deletion / archiving — deferred to a later checkpoint unless trivial.
+
+### Resolved during checkpoint-04 (Contract Lead ratified)
+- Mute is stored in `Room.mutedIds[]` (member stays in `members`, added to `mutedIds`,
+  `403` on POST pulses while listed). `mutedIds` is in the public-safe Room (clients may
+  grey out muted users).
+- The **owner cannot be muted or removed** (even by other moderators) → `403`.
+- `remove` drops the target from `members`/`mutedIds`/`moderatorIds`; it does **not**
+  delete the user globally or their past pulses. Known limitation (MVP): removal is
+  REST-authoritative (removed user fails the member check on next read/post/join) but
+  does **not** force-disconnect an already-open socket — the frontend bounces a user
+  out of the room on `moderation:applied { action: 'remove' }` for self.

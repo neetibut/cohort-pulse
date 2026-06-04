@@ -13,6 +13,8 @@ const roomSchema = new mongoose.Schema(
     accessCode: { type: String },
     // Membership tracking: the users who have joined this room.
     members: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: [] },
+    // Moderation: muted users are still members but get 403 on POST pulses (contract §7).
+    mutedIds: { type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], default: [] },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
 );
