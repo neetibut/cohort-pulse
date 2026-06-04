@@ -45,6 +45,25 @@ If you fall behind during the live build, jump to the latest checkpoint and rejo
 git checkout checkpoint-02-fullstack-local   # example
 ```
 
+### What the checkpoints are really teaching you
+
+They're not just a way to catch up — they're the point. Take four ideas with you:
+
+1. **Git is your undo button.** Each checkpoint is a *known-good* state you can
+   always return to. That safety net is what lets you hand work to an AI agent
+   without fear — a bad change is never permanent.
+2. **Commit at every working milestone.** We branch the build into stages for the
+   same reason you should commit often: so no single change (yours or the agent's)
+   can strand you somewhere you can't get back from.
+3. **Diffs show you exactly what changed.** Compare two stages to see precisely
+   what a step added — the same "review the diff" habit you apply to AI output:
+   ```bash
+   git diff checkpoint-01-backend checkpoint-02-fullstack-local
+   ```
+4. **Resetting to a known-good base isn't cheating.** Jumping to a checkpoint and
+   moving on is the professional move, not a failure. Knowing *when* to reset
+   instead of debugging in circles is a real engineering skill.
+
 ## Environment variables
 
 See `server/.env.example` and `client/.env.example`. The only difference between
