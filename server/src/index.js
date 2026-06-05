@@ -1,6 +1,8 @@
 import 'dotenv/config';
+import 'express-async-errors'; // routes async rejections to the error handler below
 import http from 'http';
 import express from 'express';
+import helmet from 'helmet';
 import cors from 'cors';
 import { connectDb } from './db.js';
 import { createSocketServer } from './socket.js';
@@ -28,6 +30,9 @@ async function start() {
   // Render runs behind a proxy — trust the first hop so req.ip is the real client
   // IP (required for per-IP rate limiting to work correctly).
   app.set('trust proxy', 1);
+  // Security headers. cross-origin resource policy is relaxed because the frontend
+  // (Vercel) and API (Render) are different origins.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cors({ origin: origins }));
   app.use(express.json({ limit: '16kb' })); // pulses are tiny; cap the body size
 
@@ -51,6 +56,16 @@ async function start() {
   // Per-user write limiter (the anti-loop guard) on mutating routes; reads pass through.
   app.use('/api/pulses', writeOnly(writeLimiter), pulsesRouter(io));
   app.use('/api/rooms', writeOnly(writeLimiter), roomsRouter(io));
+
+  // Central error handler: async route rejections (via express-async-errors) and any
+  // next(err) land here as JSON instead of a hung request or an HTML stack trace.
+  // eslint-disable-next-line no-unused-vars
+  app.use((err, req, res, next) => {
+    if (res.headersSent) return next(err);
+    const status = Number.isInteger(err?.status) ? err.status : 500;
+    if (status >= 500) console.error('unhandled error:', err?.stack || err);
+    res.status(status).json({ error: status >= 500 ? 'internal server error' : (err.message || 'bad request') });
+  });
 
   server.listen(PORT, () => console.log(`server listening on :${PORT}`));
 }
