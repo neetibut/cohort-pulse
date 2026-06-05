@@ -4,7 +4,7 @@
 > Frontend all build against this. **No role changes an endpoint, event, or shape
 > without the Contract Lead updating this file first** (and pinging the affected
 > roles). This is what keeps four parallel workstreams in sync — see
-> [`../PRD.md`](../PRD.md) §5–6.
+> [`../PRD-v2.md`](../PRD-v2.md) §5–6.
 >
 > Status: **v2-checkpoint-00 draft.** Contract Lead owns; others propose changes.
 

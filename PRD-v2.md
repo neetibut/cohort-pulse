@@ -1,7 +1,7 @@
 # PRD — Cohort Pulse Board v2: Multi-Room
 
-> **This is an add-on to the v1 build.** v1 (the 60-minute live build) is a single
-> shared board, deployed on Render + Vercel — see [`README.md`](./README.md) and
+> **This is an add-on to the v1 build — see [`PRD-v1.md`](./PRD-v1.md).** v1 (the
+> 60-minute live build) is a single shared board, deployed on Render + Vercel, on
 > branches `checkpoint-00-starter` → `checkpoint-03-deployed`. **v2 extends that
 > same app**; it does not replace it. The v2 work lives on `v2-checkpoint-*`
 > branches built on top of `main`.
