@@ -1,0 +1,40 @@
+{
+  "$comment": "Teaching artifact AND a real guardrail. Part 1 of /live_build has you read and explain this. It pre-approves the agentic dev loop (run, inspect, commit) and denies the moves that can lose work or ship by accident. The student stays in control because the dangerous actions still require an explicit human yes.",
+  "permissions": {
+    "allow": [
+      "Bash(npm run setup)",
+      "Bash(npm run dev)",
+      "Bash(npm run dev:server)",
+      "Bash(npm run dev:client)",
+      "Bash(npm --prefix server run dev)",
+      "Bash(npm --prefix client run dev)",
+      "Bash(node -v)",
+      "Bash(curl localhost:3001/health)",
+      "Bash(curl -s -m 3 localhost:3001/health)",
+      "Bash(curl -X POST localhost:3001/api/pulses:*)",
+      "Bash(curl localhost:3001/api/pulses)",
+      "Bash(git status)",
+      "Bash(git status:*)",
+      "Bash(git diff)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout checkpoint-:*)",
+      "Bash(git checkout v2-checkpoint-:*)",
+      "Read(./**)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(rm -rf:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Read(./server/.env)",
+      "Read(./client/.env)",
+      "Edit(./.claude/settings.json)",
+      "Edit(./server/.env)",
+      "Edit(./client/.env)"
+    ]
+  }
+}
