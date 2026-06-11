@@ -18,14 +18,12 @@ const origins = (process.env.CLIENT_ORIGIN || '')
 origins.push('http://localhost:5173');
 
 async function start() {
-  await connectDb(process.env.MONGODB_URI);
-  await ensureLobby();
-
   const app = express();
   app.use(cors({ origin: origins }));
   app.use(express.json());
 
-  // Health check — keep this working through every checkpoint.
+  // Health check — keep this working through every checkpoint. It is NOT gated on the
+  // database, so pre-flight and uptime pings stay green even while Mongo connects.
   app.get('/health', (req, res) => res.json({ ok: true }));
 
   const server = http.createServer(app);
@@ -34,7 +32,15 @@ async function start() {
   app.use('/api/pulses', pulsesRouter(io));
   app.use('/api/rooms', roomsRouter(io));
 
+  // Start listening FIRST so /health is up immediately, THEN connect to Mongo. If
+  // Atlas is unreachable we log a clear hint and keep serving /health rather than
+  // crashing silently — data routes fail until the DB is fixed, but you can see why.
   server.listen(PORT, () => console.log(`server listening on :${PORT}`));
+  connectDb(process.env.MONGODB_URI)
+    .then(() => ensureLobby())
+    .catch(() => {
+      console.error('server is up (/health ok) but the database is NOT connected — fix the above and restart.');
+    });
 }
 
 start().catch((err) => {
