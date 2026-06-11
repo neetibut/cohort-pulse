@@ -7,8 +7,10 @@ You will build a real-time board where the cohort posts "pulses"
 (Stuck / Shipped / Question / Idea) and everyone sees them appear live, then
 deploy it: **React on Vercel, Express/Socket.IO on Render, MongoDB Atlas, Redis.**
 
-This branch (`main` / `checkpoint-00-starter`) ships **structure and dependencies,
-not features**. You build the features live with Claude Code.
+This is the **`v2-checkpoint-00-contract`** branch — the start of the multi-room
+(Agent Teams) build: PRD-v2 + `docs/contract.md` are agreed, no v2 features yet.
+`main` holds the finished v2 app; the blank starter for the 60-minute single-agent
+build is `checkpoint-00-starter`. Run `/agent_teams_v2` to build, `/checkpoint` to orient.
 
 ## Quick start (this is your pre-flight)
 
