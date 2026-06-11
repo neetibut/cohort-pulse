@@ -1,5 +1,5 @@
 ---
-name: start_app
+name: start
 description: Boot the Cohort Pulse dev servers (client + server) in the background and verify both are reachable.
 user_invocable: true
 ---
